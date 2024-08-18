@@ -3,6 +3,9 @@ locals {
 }
 
 resource "aws_iam_role" "role" {
+  name = "${var.repository_name}"
+  path = "/github/${var.github_org}/"
+
   assume_role_policy = jsonencode({
     Statement = [
       {
@@ -16,7 +19,7 @@ resource "aws_iam_role" "role" {
             "token.actions.githubusercontent.com:aud" = var.oidc_audience
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.repository_name}:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.repository_name}:main"
           }
         }
       }
@@ -33,4 +36,8 @@ resource "aws_iam_openid_connect_provider" "github_oidc" {
 
 output "role_arn" {
   value = aws_iam_role.role.arn
+}
+
+output "github_oidc" {
+  value = aws_iam_openid_connect_provider.github_oidc[0].arn
 }
